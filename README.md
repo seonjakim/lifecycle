@@ -1,70 +1,71 @@
-# Getting Started with Create React App
+참고자료 : https://www.youtube.com/watch?v=UPv-3SYRdZk&t=1951s&ab_channel=edutechional
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Lifecycle
 
-## Available Scripts
+![](https://images.velog.io/images/seonja/post/747a57f9-3d5f-4867-8917-47caf479d16d/Screen%20Shot%202021-09-08%20at%2016.04.27.png)
 
-In the project directory, you can run:
+모든 라이프 사이클을 살펴볼 수 있는 간단한 컴포넌트를 만들었습니다.
+전체적으로는 Discussion, Rules, Workflow 컴포넌트를 구성하여 Router를 이용해서 각 컴포넌트를 mount와 unmount할 수 있도록 구성하였습니다.
 
-### `npm start`
+<br>
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## Mount와 Unmount
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+![](https://images.velog.io/images/seonja/post/194fdea3-84db-4b39-9cc5-336bbf1061b2/mountUnmount.gif)
 
-### `npm test`
+<br>
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Mount와 Render
 
-### `npm run build`
+그럼 먼저 Mount와 Render가 무엇인지 간단하게 정의를 하자면
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- Mount : 컴포넌트가 생성되고 DOM에 주입되는 것을 의미하며 최초 한번만 실행됨
+- Render : DOM에 그려주는 작업으로 props나 state값이 변할 때마다 해당 작업을 수행
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+<br>
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+위의 gif파일을 보시면 Mount시 constructor, (props가 있을 경우) getDerivedStateFromProps, render, componentDidMount 순서로 진행이 되며 다른 컴포넌트로 이동할 경우 componentWillUnmount가 실행되게 됩니다.
 
-### `npm run eject`
+<br>
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+### Update와 Re-render
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+![](https://images.velog.io/images/seonja/post/3e5414b9-0afb-4333-9f6d-91e59d691767/updateRerender.gif)
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+update시 (props가 있을 경우) getDerivedStateFromProps, shouldComponentUpdate, render, getSnapshotBeforeUpdate, ComponentDidUpdate가 순서로 진행됩니다.
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+<br>
 
-## Learn More
+## 잘못 이해하고 있었던 부분
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+저는 하나의 사이트는 단 하나의 lifecycle을 가지고 있다고 착각하고 있었습니다. 이 생각이 이전에 useLongPress함수 구현 후 테스트시 단순히 console.log에 찍힌 사항들로 render의
+빈도를 판단하게 했었고, 그 부분에서 lifecycle을 이해하지 못하고 있다는 피드백을 받았었던 것 같습니다.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+<br>
 
-### Code Splitting
+> 각 컴포넌트는 모두 각각의 lifecycle을 가지고 있고 저 method들은 mount, update, unmount시 처리해줘야 하는 로직들을 처리할 수 있도록 도와주는 역할이라는 것을 인지하게 되었습니다.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+<br>
 
-### Analyzing the Bundle Size
+## lifecyle을 모르면 발생할 수 있는 문제점
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+![](https://images.velog.io/images/seonja/post/dd68b628-2145-4499-b4da-d661fddb6777/Screen%20Shot%202021-09-08%20at%2016.40.25.png)
 
-### Making a Progressive Web App
+Discussion 컴포넌트에 setInterval을 이용해서 시간을 update하도록 구성하였습니다.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+![](https://images.velog.io/images/seonja/post/8793fdde-35e0-408c-b496-01567a336725/memleak.gif)
 
-### Advanced Configuration
+위의 gif와 같이 컴포넌트가 unmount되었음에도 Discussion 컴포넌트에서 setInterval이 발생하고 있어 메모리 누수가 생기게 됩니다.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+<br>
 
-### Deployment
+이를 방지하기 위해서 clearInterval을 해줘야 하고 이 함수는 컴포넌트가 unmount될 때
+사용하는 method인 componentWillUnmount에서 처리할 수 있습니다.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+![](https://images.velog.io/images/seonja/post/d1f34d1a-bcaf-45cb-927e-d1deda19e215/Screen%20Shot%202021-09-08%20at%2016.48.13.png)
 
-### `npm run build` fails to minify
+![](https://images.velog.io/images/seonja/post/1d5a00e3-cfec-4185-bac4-3aa53bb570bc/memleakUnmount.gif)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+<br>
+
+이와 같이 하나의 컴포넌트가 unmount되는 상황에서 해당 컴포넌트가 불필요한 연산이나 memory leak 발생을 방지하기 위해 처리해야하는 로직은 componentWillUnmount 메소드에서 처리하게 됩니다.
